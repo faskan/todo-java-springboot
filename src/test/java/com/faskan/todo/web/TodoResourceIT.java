@@ -38,6 +38,7 @@ public class TodoResourceIT {
                 postEntity(), Todo.class);
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(responseEntity.getBody().id()).isNotNull();
+        String todosResponse = testRestTemplate.getForEntity(url(), String.class).getBody();
         JSONAssert.assertEquals("""
                 [
                     {
@@ -45,7 +46,7 @@ public class TodoResourceIT {
                         "description" : "Deploy to prod"
                     }
                 ]
-                """, testRestTemplate.getForEntity(url(), String.class).getBody(), JSONCompareMode.LENIENT);
+                """, todosResponse, JSONCompareMode.LENIENT);
     }
 
     private HttpEntity<String> postEntity() {
