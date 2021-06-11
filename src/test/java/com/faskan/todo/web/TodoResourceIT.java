@@ -9,7 +9,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -23,7 +22,7 @@ public class TodoResourceIT {
 
     @Test
     void shouldReturnAllTodos() throws JSONException {
-        ResponseEntity<String> responseEntity = testRestTemplate.getForEntity("http://localhost:" + port + "/api/todos", String.class);
+        var responseEntity = testRestTemplate.getForEntity("http://localhost:" + port + "/api/todos", String.class);
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         JSONAssert.assertEquals("[\n" +
                 "  {\n" +
