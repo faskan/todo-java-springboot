@@ -1,5 +1,8 @@
 package com.faskan.todo.web;
 
+import com.faskan.todo.model.Todo;
+import com.faskan.todo.repo.TodoRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -11,20 +14,20 @@ import static java.util.Arrays.asList;
 
 @RestController
 public class TodoResource {
+    private final TodoRepository todoRepository;
+
+    public TodoResource(TodoRepository todoRepository){
+        this.todoRepository = todoRepository;
+    }
 
     @GetMapping("/api/todos")
     public List<Todo> getTodos() {
-        return asList(
-                new Todo("todo1", "Todo1 Description"),
-                new Todo("todo2", "Todo2 Description")
-        );
+        return todoRepository.findAll();
     }
 
     @PostMapping("/api/todos")
     public Todo createTodo(@RequestBody Todo todo) {
-        return todo;
+        return todoRepository.save(todo);
     }
 }
 
-record Todo(String name, String description) {
-}

@@ -1,5 +1,6 @@
 package com.faskan.todo.web;
 
+import com.faskan.todo.model.Todo;
 import org.json.JSONException;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
@@ -8,14 +9,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-import java.util.Map;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.util.Arrays.asList;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class TodoResourceIT {
@@ -25,29 +26,26 @@ public class TodoResourceIT {
     private TestRestTemplate testRestTemplate;
 
     @Test
-    void shouldReturnStatusOK() throws JSONException {
+    void shouldReturnStatusOK() {
         var responseEntity = testRestTemplate.getForEntity(
                 url(), String.class);
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        JSONAssert.assertEquals("""
-                [
-                    {
-                        "name" : "todo1",
-                        "description" : "Todo1 Description"
-                    },
-                    {
-                        "name" : "todo2",
-                        "description" : "Todo2 Description"
-                    }
-                ]
-                """, responseEntity.getBody(), JSONCompareMode.STRICT);
     }
 
     @Test
-    void shouldSaveTodoAndReturnAllTodosWhenGet() {
-        ResponseEntity<String> responseEntity = testRestTemplate.exchange(url(), HttpMethod.POST,
-                postEntity(), String.class);
+    void shouldSaveTodoAndReturnAllTodosWhenGet() throws JSONException {
+        ResponseEntity<Todo> responseEntity = testRestTemplate.exchange(url(), HttpMethod.POST,
+                postEntity(), Todo.class);
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(responseEntity.getBody().id()).isNotNull();
+        JSONAssert.assertEquals("""
+                [
+                    {
+                        "name" : "Deploy",
+                        "description" : "Deploy to prod"
+                    }
+                ]
+                """, testRestTemplate.getForEntity(url(), String.class).getBody(), JSONCompareMode.LENIENT);
     }
 
     private HttpEntity<String> postEntity() {
