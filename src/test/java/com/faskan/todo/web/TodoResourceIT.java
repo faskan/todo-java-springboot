@@ -22,7 +22,7 @@ public class TodoResourceIT {
     @Test
     void shouldReturnAllTodos() throws JSONException {
         var responseEntity = testRestTemplate.getForEntity(
-                "http://localhost:" + port + "/api/todos", String.class);
+                getUrl(), String.class);
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         JSONAssert.assertEquals("""
                 [
@@ -36,5 +36,9 @@ public class TodoResourceIT {
                     }
                 ]
                 """, responseEntity.getBody(), JSONCompareMode.STRICT);
+    }
+
+    private String getUrl() {
+        return "http://localhost:" + port + "/api/todos";
     }
 }
