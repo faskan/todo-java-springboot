@@ -16,7 +16,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TodoResourceIT {
     @LocalServerPort
     private int port;
-
     @Autowired
     private TestRestTemplate testRestTemplate;
 
@@ -25,15 +24,17 @@ public class TodoResourceIT {
         var responseEntity = testRestTemplate.getForEntity(
                 "http://localhost:" + port + "/api/todos", String.class);
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        JSONAssert.assertEquals("[\n" +
-                "  {\n" +
-                "    \"name\" : \"todo1\",\n" +
-                "    \"description\" : \"Todo1 Description\"\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"name\" : \"todo2\",\n" +
-                "    \"description\" : \"Todo2 Description\"\n" +
-                "  }\n" +
-                "]", responseEntity.getBody(), JSONCompareMode.STRICT);
+        JSONAssert.assertEquals("""
+                [
+                    {
+                        "name" : "todo1",
+                        "description" : "Todo1 Description"
+                    },
+                    {
+                        "name" : "todo2",
+                        "description" : "Todo2 Description"
+                    }
+                ]
+                """, responseEntity.getBody(), JSONCompareMode.STRICT);
     }
 }
