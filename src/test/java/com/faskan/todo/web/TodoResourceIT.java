@@ -8,9 +8,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.*;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.util.Arrays.asList;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class TodoResourceIT {
@@ -20,9 +25,9 @@ public class TodoResourceIT {
     private TestRestTemplate testRestTemplate;
 
     @Test
-    void shouldReturnAllTodos() throws JSONException {
+    void shouldReturnStatusOK() throws JSONException {
         var responseEntity = testRestTemplate.getForEntity(
-                getUrl(), String.class);
+                url(), String.class);
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         JSONAssert.assertEquals("""
                 [
@@ -38,7 +43,29 @@ public class TodoResourceIT {
                 """, responseEntity.getBody(), JSONCompareMode.STRICT);
     }
 
-    private String getUrl() {
+    @Test
+    void shouldSaveTodoAndReturnAllTodosWhenGet() {
+        ResponseEntity<String> responseEntity = testRestTemplate.exchange(url(), HttpMethod.POST,
+                postEntity(), String.class);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    private HttpEntity<String> postEntity() {
+        return new HttpEntity<>("""
+                {
+                    "name" : "Deploy",
+                    "description" : "Deploy to prod"
+                }
+                """, headers());
+    }
+
+    private MultiValueMap<String, String> headers() {
+        MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
+        headers.add("Content-Type", "application/json");
+        return headers;
+    }
+
+    private String url() {
         return "http://localhost:" + port + "/api/todos";
     }
 }
