@@ -4,6 +4,7 @@ import org.json.JSONException;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
@@ -17,10 +18,11 @@ public class TodoResourceIT {
     @LocalServerPort
     private int port;
 
-    private TestRestTemplate testRestTemplate = new TestRestTemplate();
+    @Autowired
+    private TestRestTemplate testRestTemplate;
 
     @Test
-    void test() throws JSONException {
+    void shouldReturnAllTodos() throws JSONException {
         ResponseEntity<String> responseEntity = testRestTemplate.getForEntity("http://localhost:" + port + "/api/todos", String.class);
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         JSONAssert.assertEquals("[\n" +
