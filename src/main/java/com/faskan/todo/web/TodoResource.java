@@ -18,5 +18,6 @@ public class TodoResource {
         );
     }
 }
+
 record Todo(String name, String description) {
 }

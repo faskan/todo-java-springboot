@@ -22,7 +22,8 @@ public class TodoResourceIT {
 
     @Test
     void shouldReturnAllTodos() throws JSONException {
-        var responseEntity = testRestTemplate.getForEntity("http://localhost:" + port + "/api/todos", String.class);
+        var responseEntity = testRestTemplate.getForEntity(
+                "http://localhost:" + port + "/api/todos", String.class);
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         JSONAssert.assertEquals("[\n" +
                 "  {\n" +
