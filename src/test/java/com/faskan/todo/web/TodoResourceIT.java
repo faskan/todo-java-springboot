@@ -10,7 +10,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
@@ -33,8 +32,8 @@ public class TodoResourceIT {
     }
 
     @Test
-    void shouldSaveTodoAndReturnAllTodosWhenGet() throws JSONException {
-        ResponseEntity<Todo> responseEntity = testRestTemplate.exchange(url(), HttpMethod.POST,
+    void shouldSaveTodoAndReturnAllTodosOnGet() throws JSONException {
+        ResponseEntity<Todo> responseEntity = testRestTemplate.postForEntity(url(),
                 postEntity(), Todo.class);
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(responseEntity.getBody().id()).isNotNull();
