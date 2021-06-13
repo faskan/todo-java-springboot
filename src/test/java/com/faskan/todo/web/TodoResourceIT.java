@@ -1,7 +1,9 @@
 package com.faskan.todo.web;
 
 import com.faskan.todo.model.Todo;
+import com.faskan.todo.repo.TodoRepository;
 import org.json.JSONException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
@@ -10,6 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.*;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
@@ -21,12 +24,49 @@ public class TodoResourceIT {
     private int port;
     @Autowired
     private TestRestTemplate testRestTemplate;
+    @Autowired
+    private TodoRepository todoRepository;
+
+    @BeforeEach
+    void init() {
+        todoRepository.deleteAll();
+    }
 
     @Test
-    void shouldReturnStatusOK() {
-        var responseEntity = testRestTemplate.getForEntity(
+    void shouldReturnAllTodos() throws JSONException {
+        todoRepository.save(new Todo(null, "Find", "Find the letter F"));
+        todoRepository.save(new Todo(null, "Replace", "Replace id with K"));
+        var todosResponse = testRestTemplate.getForEntity(
                 url(), String.class);
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(todosResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+        JSONAssert.assertEquals("""
+                [
+                    {
+                        "name" : "Find",
+                        "description" : "Find the letter F"
+                    },
+                    {
+                        "name" : "Replace",
+                        "description" : "Replace id with K"
+                    }
+                ]
+                """, todosResponse.getBody(), JSONCompareMode.LENIENT);
+    }
+
+    @Test
+    void shouldReturnTodoById() throws JSONException {
+        Todo todo = todoRepository.save(new Todo(null, "Find", "Find the letter F"));
+        var todosResponse = testRestTemplate.getForEntity(
+                url() + "/", String.class, todo.id());
+        assertThat(todosResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+        JSONAssert.assertEquals("""
+                [
+                    {
+                        "name" : "Find",
+                        "description" : "Find the letter F"
+                    }
+                ]
+                """, todosResponse.getBody(), JSONCompareMode.LENIENT);
     }
 
     @Test
@@ -44,6 +84,35 @@ public class TodoResourceIT {
                     }
                 ]
                 """, todosResponse, JSONCompareMode.LENIENT);
+    }
+
+    @Test
+    void shouldUpdateAndReturnTheNewTodo() throws JSONException {
+        Todo todo = todoRepository.save(new Todo(null, "Dont Deploy", "Do not deploy to prod"));
+        testRestTemplate.put(url() + "/{id}", postEntity(), todo.id());
+        var todosResponse = testRestTemplate.getForEntity(
+                url() + "/", String.class, todo.id());
+        assertThat(todosResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+        JSONAssert.assertEquals("""
+                [
+                    {
+                        "name" : "Deploy",
+                        "description" : "Deploy to prod"
+                    }
+                ]
+                """, todosResponse.getBody(), JSONCompareMode.LENIENT);
+    }
+    @Test
+    void shouldDeleteTheTodo() throws JSONException {
+        Todo todo = todoRepository.save(new Todo(null, "Dont Deploy", "Do not deploy to prod"));
+        testRestTemplate.delete(url() + "/{id}", todo.id());
+        var todosResponse = testRestTemplate.getForEntity(
+                url() + "/", String.class, todo.id());
+        assertThat(todosResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+        JSONAssert.assertEquals("""
+                [
+                ]
+                """, todosResponse.getBody(), JSONCompareMode.STRICT);
     }
 
     private HttpEntity<String> postEntity() {
