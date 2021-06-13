@@ -11,18 +11,19 @@ import java.util.List;
 
 @RestController
 public class TodoResource {
+    public static final String API_TODOS = "/api/todos";
     private final TodoRepository todoRepository;
 
-    public TodoResource(TodoRepository todoRepository){
+    public TodoResource(TodoRepository todoRepository) {
         this.todoRepository = todoRepository;
     }
 
-    @GetMapping("/api/todos")
+    @GetMapping(API_TODOS)
     public List<Todo> getTodos() {
         return todoRepository.findAll();
     }
 
-    @PostMapping("/api/todos")
+    @PostMapping(API_TODOS)
     public Todo createTodo(@RequestBody Todo todo) {
         return todoRepository.save(todo);
     }
