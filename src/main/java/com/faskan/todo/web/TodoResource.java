@@ -31,7 +31,7 @@ public class TodoResource {
     }
 
     @PutMapping(API_TODOS+"/{id}")
-    public Todo createTodo(@PathVariable String id, @RequestBody Todo todo) {
+    public Todo updateTodo(@PathVariable String id, @RequestBody Todo todo) {
         Todo updatedTodo = new Todo(id, todo.name(), todo.description());
         return todoRepository.save(updatedTodo);
     }

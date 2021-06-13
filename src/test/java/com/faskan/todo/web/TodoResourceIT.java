@@ -57,7 +57,7 @@ public class TodoResourceIT {
     void shouldReturnTodoById() throws JSONException {
         Todo todo = todoRepository.save(new Todo(null, "Find", "Find the letter F"));
         var todosResponse = testRestTemplate.getForEntity(
-                url() + "/", String.class, todo.id());
+                url() + "/{id}", String.class, todo.id());
         assertThat(todosResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
         JSONAssert.assertEquals("""
                 [
@@ -91,7 +91,7 @@ public class TodoResourceIT {
         Todo todo = todoRepository.save(new Todo(null, "Dont Deploy", "Do not deploy to prod"));
         testRestTemplate.put(url() + "/{id}", postEntity(), todo.id());
         var todosResponse = testRestTemplate.getForEntity(
-                url() + "/", String.class, todo.id());
+                url() + "/{id}", String.class, todo.id());
         assertThat(todosResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
         JSONAssert.assertEquals("""
                 [
