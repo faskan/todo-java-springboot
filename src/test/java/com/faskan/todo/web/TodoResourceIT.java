@@ -78,11 +78,11 @@ public class TodoResourceIT {
 
     @Test
     void shouldSaveTodoAndReturnAllTodosOnGet() throws JSONException {
-        ResponseEntity<Todo> responseEntity = testRestTemplate.postForEntity(url(),
+        var responseEntity = testRestTemplate.postForEntity(url(),
                 postEntity(), Todo.class);
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(responseEntity.getBody().id()).isNotNull();
-        String todosResponse = testRestTemplate.getForEntity(url(), String.class).getBody();
+        var todosResponse = testRestTemplate.getForEntity(url(), String.class).getBody();
         JSONAssert.assertEquals("""
                 [
                     {
