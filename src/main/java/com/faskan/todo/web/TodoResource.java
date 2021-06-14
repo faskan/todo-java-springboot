@@ -2,7 +2,9 @@ package com.faskan.todo.web;
 
 import com.faskan.todo.model.Todo;
 import com.faskan.todo.repo.TodoRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,8 +23,8 @@ public class TodoResource {
         return todoRepository.findAll();
     }
     @GetMapping(API_TODOS+"/{id}")
-    public Optional<Todo> getTodo(String id) {
-        return todoRepository.findById(id);
+    public Todo getTodo(@PathVariable String id) {
+        return todoRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 
     @PostMapping(API_TODOS)

@@ -12,7 +12,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.*;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
@@ -56,17 +55,22 @@ public class TodoResourceIT {
     @Test
     void shouldReturnTodoById() throws JSONException {
         Todo todo = todoRepository.save(new Todo(null, "Find", "Find the letter F"));
+        todoRepository.save(new Todo(null, "SomeThingElse", "Something else"));
         var todosResponse = testRestTemplate.getForEntity(
                 url() + "/{id}", String.class, todo.id());
         assertThat(todosResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
         JSONAssert.assertEquals("""
-                [
                     {
                         "name" : "Find",
                         "description" : "Find the letter F"
                     }
-                ]
                 """, todosResponse.getBody(), JSONCompareMode.LENIENT);
+    }
+    @Test
+    void shouldReturn404ForAnUnknownId() throws JSONException {
+        var todosResponse = testRestTemplate.getForEntity(
+                url() + "/{id}", String.class, "someUnknownId");
+        assertThat(todosResponse.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
 
     @Test
@@ -94,12 +98,10 @@ public class TodoResourceIT {
                 url() + "/{id}", String.class, todo.id());
         assertThat(todosResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
         JSONAssert.assertEquals("""
-                [
                     {
                         "name" : "Deploy",
                         "description" : "Deploy to prod"
                     }
-                ]
                 """, todosResponse.getBody(), JSONCompareMode.LENIENT);
     }
     @Test
