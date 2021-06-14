@@ -12,10 +12,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.*;
-import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+import java.util.List;
+import java.util.Map;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.util.CollectionUtils.toMultiValueMap;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class TodoResourceIT {
@@ -90,6 +93,18 @@ public class TodoResourceIT {
                 """, todosResponse, JSONCompareMode.LENIENT);
     }
 
+    private HttpEntity<String> postEntity() {
+        return new HttpEntity<>("""
+                {
+                    "name" : "Deploy",
+                    "description" : "Deploy to prod"
+                }
+                """, headers());
+    }
+    private MultiValueMap<String, String> headers() {
+        return toMultiValueMap(Map.of(HttpHeaders.CONTENT_TYPE, List.of(MediaType.APPLICATION_JSON.toString())));
+    }
+
     @Test
     void shouldUpdateAndReturnTheNewTodo() throws JSONException {
         Todo todo = todoRepository.save(new Todo(null, "Dont Deploy", "Do not deploy to prod"));
@@ -104,6 +119,7 @@ public class TodoResourceIT {
                     }
                 """, todosResponse.getBody(), JSONCompareMode.LENIENT);
     }
+
     @Test
     void shouldDeleteTheTodo() throws JSONException {
         Todo todo = todoRepository.save(new Todo(null, "Dont Deploy", "Do not deploy to prod"));
@@ -115,21 +131,6 @@ public class TodoResourceIT {
                 [
                 ]
                 """, todosResponse.getBody(), JSONCompareMode.STRICT);
-    }
-
-    private HttpEntity<String> postEntity() {
-        return new HttpEntity<>("""
-                {
-                    "name" : "Deploy",
-                    "description" : "Deploy to prod"
-                }
-                """, headers());
-    }
-
-    private MultiValueMap<String, String> headers() {
-        MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
-        headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON.toString());
-        return headers;
     }
 
     private String url() {
